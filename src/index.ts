@@ -104,14 +104,25 @@ function draw(ctx: CanvasRenderingContext2D, dt: number) {
     ctx.fillStyle = `rgb(40 45 52)`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = `${getPixelSize(canvas, 6, "x")}px monospace`;
+    ctx.font = `${getPixelSize(canvas, 6, "x")}px 'VT323', monospace`;
     ctx.textAlign = "center";
     ctx.fillStyle = `white`;
+
+    // title
     ctx.fillText(
         "Pong",
         getPixelSize(canvas, 50, "x"),
-        getPixelSize(canvas, 10, "x"),
+        getPixelSize(canvas, 14, "y"),
     );
+
+    // scores
+    const y = getPixelSize(canvas, 30, "y");
+    const gap = 10
+    ctx.font = `${getPixelSize(canvas, 8, "x")}px 'VT323', monospace`;
+    ctx.textAlign = 'end';
+    ctx.fillText(String(leftPlayerScore), getPixelSize(canvas, 50 - gap / 2, 'x'), y);
+    ctx.textAlign = 'start';
+    ctx.fillText(String(rightPlayerScore), getPixelSize(canvas, 50 + gap/ 2, 'x'), y);
 
     drawPaddle(ctx, [1, leftPaddleY]);
     drawPaddle(ctx, [100 - PADDLE_SIZE[0] - 1, rightPaddleY]);
