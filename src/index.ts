@@ -3,6 +3,7 @@ import trackKeys from "./utils/trackKeys";
 import getPixelSize from "./utils/getPixelSize";
 import Ball from "./components/Ball";
 import Paddle from "./components/Paddle";
+import getPixelDimensions from "./utils/getPixelDimensions";
 
 let paddleSpeed = 120;
 const ASPECT_RATIO = 16 / 9;
@@ -17,14 +18,16 @@ let rightPlayerScore = 0;
 const ballWidth = 1.3,
     ballHeight = ballWidth * ASPECT_RATIO;
 
-const ball = new Ball(
-    ballWidth,
-    ballHeight,
-);
+const ball = new Ball(ballWidth, ballHeight);
 
 const PADDLE_WIDTH = 1.5;
 const leftPaddle = new Paddle(1, 10, PADDLE_WIDTH, PADDLE_WIDTH * 6);
-const rightPaddle = new Paddle(100 - PADDLE_WIDTH - 1, 62, PADDLE_WIDTH, PADDLE_WIDTH * 6);
+const rightPaddle = new Paddle(
+    100 - PADDLE_WIDTH - 1,
+    62,
+    PADDLE_WIDTH,
+    PADDLE_WIDTH * 6,
+);
 
 function update(dt: number) {
     if (pressedKeys.ArrowDown) {
@@ -43,8 +46,8 @@ function update(dt: number) {
         leftPaddle.dy = 0;
     }
 
-    leftPaddle.update(dt)
-    rightPaddle.update(dt)
+    leftPaddle.update(dt);
+    rightPaddle.update(dt);
 
     switch (gameState) {
         case "start": {
@@ -74,6 +77,37 @@ window.addEventListener("keydown", (e) => {
     }
 });
 
+function displayScores(ctx: CanvasRenderingContext2D) {
+    const canvas = ctx.canvas;
+
+    const y = getPixelSize(canvas, 30, "y");
+    const gap = 10;
+
+    ctx.fillStyle = "white";
+    ctx.font = `${getPixelSize(canvas, 8, "x")}px 'VT323', monospace`;
+    ctx.textAlign = "end";
+    ctx.fillText(
+        String(leftPlayerScore),
+        getPixelSize(canvas, 50 - gap / 2, "x"),
+        y,
+    );
+    ctx.textAlign = "start";
+    ctx.fillText(
+        String(rightPlayerScore),
+        getPixelSize(canvas, 50 + gap / 2, "x"),
+        y,
+    );
+}
+
+function displayFPS(ctx: CanvasRenderingContext2D, dt: number) {
+    const [x, y] = getPixelDimensions(ctx.canvas, [5, 1]);
+    ctx.fillStyle = 'rgb(0, 255, 0)';
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'top';
+    ctx.font = `${getPixelSize(ctx.canvas, 3, "x")}px 'VT323', monospace`;
+    ctx.fillText(`FPS ${Math.round(1 / dt)}`, x, y);
+}
+
 function draw(ctx: CanvasRenderingContext2D, dt: number) {
     const { canvas } = ctx;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -93,21 +127,8 @@ function draw(ctx: CanvasRenderingContext2D, dt: number) {
     );
 
     // scores
-    const y = getPixelSize(canvas, 30, "y");
-    const gap = 10;
-    ctx.font = `${getPixelSize(canvas, 8, "x")}px 'VT323', monospace`;
-    ctx.textAlign = "end";
-    ctx.fillText(
-        String(leftPlayerScore),
-        getPixelSize(canvas, 50 - gap / 2, "x"),
-        y,
-    );
-    ctx.textAlign = "start";
-    ctx.fillText(
-        String(rightPlayerScore),
-        getPixelSize(canvas, 50 + gap / 2, "x"),
-        y,
-    );
+    displayScores(ctx);
+    displayFPS(ctx, dt);
 
     leftPaddle.render(ctx);
     rightPaddle.render(ctx);

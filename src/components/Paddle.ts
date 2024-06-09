@@ -23,6 +23,7 @@ export default class Paddle {
             y = getPixelSize(ctx.canvas, this.y, "y"),
             w = getPixelSize(ctx.canvas, this.width, "x"),
             h = getPixelSize(ctx.canvas, this.height, "y");
+        ctx.fillStyle = 'white';
         ctx.fillRect(x, y, w, h);
     }
 }
