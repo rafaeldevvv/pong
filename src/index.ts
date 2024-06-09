@@ -4,8 +4,9 @@ import getPixelSize from "./utils/getPixelSize";
 import Ball from "./components/Ball";
 import Paddle from "./components/Paddle";
 import getPixelDimensions from "./utils/getPixelDimensions";
+import { randomInt } from "./utils/random";
 
-let paddleSpeed = 120;
+const paddleSpeed = 100;
 const ASPECT_RATIO = 16 / 9;
 
 let gameState: "start" | "playing" | "end" = "start";
@@ -28,6 +29,17 @@ const rightPaddle = new Paddle(
     PADDLE_WIDTH,
     PADDLE_WIDTH * 6,
 );
+
+window.addEventListener("keydown", (e) => {
+    if (e.key == "Enter") {
+        if (gameState == "start") {
+            gameState = "playing";
+        } else {
+            gameState = "start";
+            ball.reset();
+        }
+    }
+});
 
 function update(dt: number) {
     if (pressedKeys.ArrowDown) {
@@ -55,6 +67,39 @@ function update(dt: number) {
         }
         case "playing": {
             ball.update(dt);
+
+            if (ball.collides(leftPaddle)) {
+                ball.x = leftPaddle.x + leftPaddle.width;
+                ball.dx = -ball.dx * 1.03;
+
+                if (ball.dy > 0) {
+                    ball.dy = randomInt(10, 30);
+                } else {
+                    ball.dy = -randomInt(10, 30);
+                }
+            }
+
+            if (ball.collides(rightPaddle)) {
+                ball.x = rightPaddle.x - ball.width;
+                ball.dx = -ball.dx * 1.03;
+
+                if (ball.dy > 0) {
+                    ball.dy = randomInt(10, 30);
+                } else {
+                    ball.dy = -randomInt(10, 30);
+                }
+            }
+
+            if (ball.y <= 0) {
+                ball.dy = -ball.dy;
+                ball.y = 0;
+            }
+
+            if (ball.y >= 100 - ball.height) {
+                ball.dy = -ball.y;
+                ball.y = 100 - ball.height;
+            }
+
             break;
         }
         case "end": {
@@ -65,17 +110,6 @@ function update(dt: number) {
         }
     }
 }
-
-window.addEventListener("keydown", (e) => {
-    if (e.key == "Enter") {
-        if (gameState == "start") {
-            gameState = "playing";
-        } else {
-            gameState = "start";
-            ball.reset();
-        }
-    }
-});
 
 function displayScores(ctx: CanvasRenderingContext2D) {
     const canvas = ctx.canvas;
@@ -111,7 +145,7 @@ function displayFPS(ctx: CanvasRenderingContext2D, dt: number) {
 function draw(ctx: CanvasRenderingContext2D, dt: number) {
     const { canvas } = ctx;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+ 
     ctx.fillStyle = `rgb(40 45 52)`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
