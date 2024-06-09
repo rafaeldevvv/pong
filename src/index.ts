@@ -1,68 +1,64 @@
 import "./style.css";
 import trackKeys from "./utils/trackKeys";
-import getPixelDimensions from "./utils/getPixelDimensions";
 import getPixelSize from "./utils/getPixelSize";
+import Ball from "./components/Ball";
+import Paddle from "./components/Paddle";
 
 let paddleSpeed = 120;
-const PADDLE_SIZE = [1.4, 10] as const;
 const ASPECT_RATIO = 16 / 9;
 
 let gameState: "start" | "playing" | "end" = "start";
 
-type DoubleNumber = [number, number];
-
 const pressedKeys = trackKeys(["ArrowUp", "ArrowDown", "w", "s"]);
-let leftPaddleY = 10;
-let rightPaddleY = 80;
+
 let leftPlayerScore = 0;
 let rightPlayerScore = 0;
 
 const ballWidth = 1.3,
     ballHeight = ballWidth * ASPECT_RATIO;
 
-function randomInt(min: number, max: number) {
-    return min + Math.round(Math.random() * (max - min));
-}
+const ball = new Ball(
+    ballWidth,
+    ballHeight,
+);
 
-let ballPosition: DoubleNumber = [50 - ballWidth / 2, 50 - ballHeight / 2];
-const speedDelta = 40;
-let ballSpeed: DoubleNumber = [
-    Math.random() > 0.5 ? -speedDelta : speedDelta,
-    randomInt(-speedDelta, speedDelta),
-];
+const PADDLE_WIDTH = 1.5;
+const leftPaddle = new Paddle(1, 10, PADDLE_WIDTH, PADDLE_WIDTH * 6);
+const rightPaddle = new Paddle(100 - PADDLE_WIDTH - 1, 62, PADDLE_WIDTH, PADDLE_WIDTH * 6);
 
 function update(dt: number) {
     if (pressedKeys.ArrowDown) {
-        const newPos = rightPaddleY + paddleSpeed * dt;
-        rightPaddleY = Math.min(99 - PADDLE_SIZE[1], newPos);
+        rightPaddle.dy = paddleSpeed;
     } else if (pressedKeys.ArrowUp) {
-        const newPos = rightPaddleY - paddleSpeed * dt;
-        rightPaddleY = Math.max(1, newPos);
+        rightPaddle.dy = -paddleSpeed;
+    } else {
+        rightPaddle.dy = 0;
     }
 
     if (pressedKeys.w) {
-        const newPos = leftPaddleY - paddleSpeed * dt;
-        leftPaddleY = Math.max(1, newPos);
+        leftPaddle.dy = -paddleSpeed;
     } else if (pressedKeys.s) {
-        const newPos = leftPaddleY + paddleSpeed * dt;
-        leftPaddleY = Math.min(99 - PADDLE_SIZE[1], newPos);
+        leftPaddle.dy = paddleSpeed;
+    } else {
+        leftPaddle.dy = 0;
     }
+
+    leftPaddle.update(dt)
+    rightPaddle.update(dt)
 
     switch (gameState) {
         case "start": {
             break;
         }
         case "playing": {
-            const [dx, dy] = ballSpeed;
-            ballPosition[0] += dx * dt;
-            ballPosition[1] += dy * dt;
+            ball.update(dt);
             break;
         }
         case "end": {
             break;
         }
         default: {
-            throw new Error('Unknown game state: ' + gameState)
+            throw new Error("Unknown game state: " + gameState);
         }
     }
 }
@@ -73,29 +69,10 @@ window.addEventListener("keydown", (e) => {
             gameState = "playing";
         } else {
             gameState = "start";
-            ballPosition = [50 - ballWidth / 2, 50 - ballHeight / 2];
-            ballSpeed = [
-                Math.random() > 0.5 ? -speedDelta : speedDelta,
-                randomInt(-speedDelta, speedDelta),
-            ];
+            ball.reset();
         }
     }
 });
-
-function drawPaddle(ctx: CanvasRenderingContext2D, pos: DoubleNumber) {
-    ctx.fillStyle = "white";
-    const canvas = ctx.canvas;
-    const [width, height] = getPixelDimensions(canvas, PADDLE_SIZE);
-    const [x, y] = getPixelDimensions(canvas, pos);
-    ctx.fillRect(x, y, width, height);
-}
-
-function drawBall(ctx: CanvasRenderingContext2D, pos: DoubleNumber) {
-    const [x, y] = getPixelDimensions(ctx.canvas, pos);
-    const [w, h] = getPixelDimensions(ctx.canvas, [ballWidth, ballHeight]);
-    ctx.fillStyle = "white";
-    ctx.fillRect(x, y, w, h);
-}
 
 function draw(ctx: CanvasRenderingContext2D, dt: number) {
     const { canvas } = ctx;
@@ -117,16 +94,24 @@ function draw(ctx: CanvasRenderingContext2D, dt: number) {
 
     // scores
     const y = getPixelSize(canvas, 30, "y");
-    const gap = 10
+    const gap = 10;
     ctx.font = `${getPixelSize(canvas, 8, "x")}px 'VT323', monospace`;
-    ctx.textAlign = 'end';
-    ctx.fillText(String(leftPlayerScore), getPixelSize(canvas, 50 - gap / 2, 'x'), y);
-    ctx.textAlign = 'start';
-    ctx.fillText(String(rightPlayerScore), getPixelSize(canvas, 50 + gap/ 2, 'x'), y);
+    ctx.textAlign = "end";
+    ctx.fillText(
+        String(leftPlayerScore),
+        getPixelSize(canvas, 50 - gap / 2, "x"),
+        y,
+    );
+    ctx.textAlign = "start";
+    ctx.fillText(
+        String(rightPlayerScore),
+        getPixelSize(canvas, 50 + gap / 2, "x"),
+        y,
+    );
 
-    drawPaddle(ctx, [1, leftPaddleY]);
-    drawPaddle(ctx, [100 - PADDLE_SIZE[0] - 1, rightPaddleY]);
-    drawBall(ctx, ballPosition);
+    leftPaddle.render(ctx);
+    rightPaddle.render(ctx);
+    ball.render(ctx);
 }
 
 function runAnimation(callback: (dt: number) => boolean) {
