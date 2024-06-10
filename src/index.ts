@@ -96,7 +96,7 @@ function update(dt: number) {
             }
 
             if (ball.y >= 100 - ball.height) {
-                ball.dy = -ball.y;
+                ball.dy = -ball.dy;
                 ball.y = 100 - ball.height;
             }
 
