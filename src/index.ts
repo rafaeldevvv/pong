@@ -9,12 +9,13 @@ import { randomInt } from "./utils/random";
 const paddleSpeed = 100;
 const ASPECT_RATIO = 16 / 9;
 
-let gameState: "start" | "playing" | "end" = "start";
+let gameState: "start" | "serve" | "play" = "start";
 
 const pressedKeys = trackKeys(["ArrowUp", "ArrowDown", "w", "s"]);
 
 let leftPlayerScore = 0;
 let rightPlayerScore = 0;
+let servingPlayer = randomInt(1, 2) == 1 ? "left" : "right";
 
 const ballWidth = 1.3,
     ballHeight = ballWidth * ASPECT_RATIO;
@@ -33,10 +34,11 @@ const rightPaddle = new Paddle(
 window.addEventListener("keydown", (e) => {
     if (e.key == "Enter") {
         if (gameState == "start") {
-            gameState = "playing";
-        } else {
-            gameState = "start";
-            ball.reset();
+            gameState = "serve";
+        } else if (gameState == "serve") {
+            ball.dx =
+                servingPlayer == "left" ? ball.speedDelta : -ball.speedDelta;
+            gameState = "play";
         }
     }
 });
@@ -61,54 +63,59 @@ function update(dt: number) {
     leftPaddle.update(dt);
     rightPaddle.update(dt);
 
-    switch (gameState) {
-        case "start": {
-            break;
+    if (gameState == "play") {
+        ball.update(dt);
+
+        if (ball.collides(leftPaddle)) {
+            ball.x = leftPaddle.x + leftPaddle.width;
+            ball.dx = -ball.dx * 1.03;
+
+            if (ball.dy > 0) {
+                ball.dy = randomInt(10, 30);
+            } else {
+                ball.dy = -randomInt(10, 30);
+            }
         }
-        case "playing": {
-            ball.update(dt);
 
-            if (ball.collides(leftPaddle)) {
-                ball.x = leftPaddle.x + leftPaddle.width;
-                ball.dx = -ball.dx * 1.03;
+        if (ball.collides(rightPaddle)) {
+            ball.x = rightPaddle.x - ball.width;
+            ball.dx = -ball.dx * 1.03;
 
-                if (ball.dy > 0) {
-                    ball.dy = randomInt(10, 30);
-                } else {
-                    ball.dy = -randomInt(10, 30);
-                }
+            if (ball.dy > 0) {
+                ball.dy = randomInt(10, 30);
+            } else {
+                ball.dy = -randomInt(10, 30);
             }
-
-            if (ball.collides(rightPaddle)) {
-                ball.x = rightPaddle.x - ball.width;
-                ball.dx = -ball.dx * 1.03;
-
-                if (ball.dy > 0) {
-                    ball.dy = randomInt(10, 30);
-                } else {
-                    ball.dy = -randomInt(10, 30);
-                }
-            }
-
-            if (ball.y <= 0) {
-                ball.dy = -ball.dy;
-                ball.y = 0;
-            }
-
-            if (ball.y >= 100 - ball.height) {
-                ball.dy = -ball.dy;
-                ball.y = 100 - ball.height;
-            }
-
-            break;
         }
-        case "end": {
-            break;
+
+        if (ball.y <= 0) {
+            ball.dy = -ball.dy;
+            ball.y = 0;
         }
-        default: {
-            throw new Error("Unknown game state: " + gameState);
+
+        if (ball.y >= 100 - ball.height) {
+            ball.dy = -ball.dy;
+            ball.y = 100 - ball.height;
+        }
+
+        // if went right
+        if (ball.x >= 100) {
+            ball.reset();
+            leftPlayerScore++;
+            servingPlayer = "right";
+            gameState = "serve";
+        } else if (ball.x + ball.width < 0) {
+            // if went left
+            ball.reset();
+            rightPlayerScore++;
+            servingPlayer = "left";
+            gameState = "serve";
         }
     }
+}
+
+function getFont(canvas: HTMLCanvasElement, size: number) {
+    return `${getPixelSize(canvas, size, "x")}px 'VT323', monospace`;
 }
 
 function displayScores(ctx: CanvasRenderingContext2D) {
@@ -135,30 +142,52 @@ function displayScores(ctx: CanvasRenderingContext2D) {
 
 function displayFPS(ctx: CanvasRenderingContext2D, dt: number) {
     const [x, y] = getPixelDimensions(ctx.canvas, [5, 1]);
-    ctx.fillStyle = 'rgb(0, 255, 0)';
-    ctx.textAlign = 'start';
-    ctx.textBaseline = 'top';
-    ctx.font = `${getPixelSize(ctx.canvas, 3, "x")}px 'VT323', monospace`;
+    ctx.fillStyle = "rgb(0, 255, 0)";
+    ctx.textAlign = "start";
+    ctx.textBaseline = "top";
+    ctx.font = getFont(ctx.canvas, 3);
     ctx.fillText(`FPS ${Math.round(1 / dt)}`, x, y);
 }
 
 function draw(ctx: CanvasRenderingContext2D, dt: number) {
     const { canvas } = ctx;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
- 
+
     ctx.fillStyle = `rgb(40 45 52)`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = `${getPixelSize(canvas, 6, "x")}px 'VT323', monospace`;
     ctx.textAlign = "center";
     ctx.fillStyle = `white`;
 
-    // title
-    ctx.fillText(
-        "Pong",
-        getPixelSize(canvas, 50, "x"),
-        getPixelSize(canvas, 14, "y"),
-    );
+    if (gameState == "start") {
+        // title
+        ctx.font = getFont(ctx.canvas, 5);
+        ctx.fillText(
+            "Welcome to Pong!",
+            getPixelSize(canvas, 50, "x"),
+            getPixelSize(canvas, 10, "y"),
+        );
+        ctx.font = getFont(ctx.canvas, 2.5);
+        ctx.fillText(
+            "Press Enter to start",
+            getPixelSize(canvas, 50, "x"),
+            getPixelSize(canvas, 18.5, "y"),
+        );
+    } else if (gameState == "serve") {
+        // title
+        ctx.font = getFont(ctx.canvas, 4);
+        ctx.fillText(
+            `Player ${servingPlayer === "left" ? 1 : 0}'s serve!`,
+            getPixelSize(canvas, 50, "x"),
+            getPixelSize(canvas, 11, "y"),
+        );
+        ctx.font = getFont(ctx.canvas, 2.5);
+        ctx.fillText(
+            "Press Enter to serve",
+            getPixelSize(canvas, 50, "x"),
+            getPixelSize(canvas, 18.5, "y"),
+        );
+    }
 
     // scores
     displayScores(ctx);
