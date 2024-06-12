@@ -9,13 +9,14 @@ import { randomInt } from "./utils/random";
 const paddleSpeed = 100;
 const ASPECT_RATIO = 16 / 9;
 
-let gameState: "start" | "serve" | "play" = "start";
+let gameState: "start" | "serve" | "play" | "done" = "start";
 
 const pressedKeys = trackKeys(["ArrowUp", "ArrowDown", "w", "s"]);
 
 let leftPlayerScore = 0;
 let rightPlayerScore = 0;
 let servingPlayer = randomInt(1, 2) == 1 ? "left" : "right";
+let winner: 'left' | 'right' | null = null;
 
 const ballWidth = 1.3,
     ballHeight = ballWidth * ASPECT_RATIO;
@@ -39,6 +40,11 @@ window.addEventListener("keydown", (e) => {
             ball.dx =
                 servingPlayer == "left" ? ball.speedDelta : -ball.speedDelta;
             gameState = "play";
+        } else if (gameState == "done") {
+            leftPlayerScore = 0;
+            rightPlayerScore = 0;
+
+            gameState = "serve";
         }
     }
 });
@@ -104,18 +110,32 @@ function update(dt: number) {
             leftPlayerScore++;
             servingPlayer = "right";
             gameState = "serve";
+
+            if (leftPlayerScore == 10) {
+                gameState = "done";
+                winner = 'left';
+            }
         } else if (ball.x + ball.width < 0) {
             // if went left
             ball.reset();
             rightPlayerScore++;
             servingPlayer = "left";
             gameState = "serve";
+
+            if (rightPlayerScore == 10) {
+                gameState = "done";
+                winner = 'right';
+            }
         }
     }
 }
 
 function getFont(canvas: HTMLCanvasElement, size: number) {
     return `${getPixelSize(canvas, size, "x")}px 'VT323', monospace`;
+}
+
+function capitalize(s: string) {
+    return s[0].toUpperCase() + s.slice(1).toLowerCase();
 }
 
 function displayScores(ctx: CanvasRenderingContext2D) {
@@ -173,11 +193,13 @@ function draw(ctx: CanvasRenderingContext2D, dt: number) {
             getPixelSize(canvas, 50, "x"),
             getPixelSize(canvas, 18.5, "y"),
         );
-    } else if (gameState == "serve") {
+    }
+
+    if (gameState == "serve") {
         // title
         ctx.font = getFont(ctx.canvas, 4);
         ctx.fillText(
-            `Player ${servingPlayer === "left" ? 1 : 0}'s serve!`,
+            `${capitalize(servingPlayer)} player's serve!`,
             getPixelSize(canvas, 50, "x"),
             getPixelSize(canvas, 11, "y"),
         );
@@ -186,6 +208,21 @@ function draw(ctx: CanvasRenderingContext2D, dt: number) {
             "Press Enter to serve",
             getPixelSize(canvas, 50, "x"),
             getPixelSize(canvas, 18.5, "y"),
+        );
+    }
+
+    if (gameState == "done") {
+        ctx.font = getFont(ctx.canvas, 6);
+        ctx.fillText(
+            `${capitalize(winner!)} player wins!`,
+            getPixelSize(canvas, 50, "x"),
+            getPixelSize(canvas, 5, "y"),
+        );
+        ctx.font = getFont(ctx.canvas, 2.5);
+        ctx.fillText(
+            "Press Enter to restart!",
+            getPixelSize(canvas, 50, "x"),
+            getPixelSize(canvas, 16, "y"),
         );
     }
 
