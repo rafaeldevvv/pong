@@ -8,7 +8,7 @@ import capitalize from "./utils/capitalize";
 import runAnimation from "./utils/runAnimation";
 import { randomInt } from "./utils/random";
 
-const paddleSpeed = 100;
+const paddleSpeed = 80;
 const ASPECT_RATIO = 16 / 9;
 
 let gameState: "start" | "serve" | "play" | "done" = "start";
