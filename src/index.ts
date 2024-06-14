@@ -1,9 +1,11 @@
 import "./style.css";
-import trackKeys from "./utils/trackKeys";
-import getPixelSize from "./utils/getPixelSize";
 import Ball from "./components/Ball";
 import Paddle from "./components/Paddle";
+import trackKeys from "./utils/trackKeys";
+import getPixelSize from "./utils/getPixelSize";
 import getPixelDimensions from "./utils/getPixelDimensions";
+import capitalize from "./utils/capitalize";
+import runAnimation from "./utils/runAnimation";
 import { randomInt } from "./utils/random";
 
 const paddleSpeed = 100;
@@ -150,10 +152,6 @@ function getFont(canvas: HTMLCanvasElement, size: number) {
     return `${getPixelSize(canvas, size, "x")}px 'VT323', monospace`;
 }
 
-function capitalize(s: string) {
-    return s[0].toUpperCase() + s.slice(1).toLowerCase();
-}
-
 function displayScores(ctx: CanvasRenderingContext2D) {
     const canvas = ctx.canvas;
 
@@ -251,21 +249,13 @@ function draw(ctx: CanvasRenderingContext2D, dt: number) {
     ball.render(ctx);
 }
 
-function runAnimation(callback: (dt: number) => boolean) {
-    let lastTime: null | number = null;
-    function frame(time: number) {
-        if (lastTime !== null) {
-            const timePassed = Math.min(100, time - lastTime) / 1000;
-            lastTime = time;
-            if (callback(timePassed)) requestAnimationFrame(frame);
-        } else {
-            lastTime = time;
-            requestAnimationFrame(frame);
-        }
-    }
-    requestAnimationFrame(frame);
-}
 
+
+/**
+ * Automatic letterboxing. It automatically letterboxes the canvas.
+ * 
+ * @param canvas 
+ */
 function setCanvasSize(canvas: HTMLCanvasElement) {
     let width = innerHeight * ASPECT_RATIO;
     if (width > innerWidth) {

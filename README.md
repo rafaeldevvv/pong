@@ -1,6 +1,6 @@
 # Pong
 
-The classic [Pong](https://en.wikipedia.org/wiki/Pong) game.
+The classic [Pong](https://en.wikipedia.org/wiki/Pong) game, created following the course [CS50's Introduction to Game Development](https://cs50.harvard.edu/games/2018/weeks/0/) by Harvard.
 
 ## Author
 
