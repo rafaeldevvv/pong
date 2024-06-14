@@ -32,6 +32,14 @@ const rightPaddle = new Paddle(
     PADDLE_WIDTH * 6,
 );
 
+const sounds = {
+    score: new Audio('/sounds/score.wav'),
+    paddleHit: new Audio('/sounds/paddle_hit.wav'),
+    wallHit: new Audio('/sounds/wall_hit.wav')
+} as const;
+
+sounds.score.volume = .4;
+
 window.addEventListener("keydown", (e) => {
     if (e.key == "Enter") {
         if (gameState == "start") {
@@ -81,42 +89,50 @@ function update(dt: number) {
             } else {
                 ball.dy = -randomInt(10, 30);
             }
-        }
 
+            sounds.paddleHit.play()
+        }
+        
         if (ball.collides(rightPaddle)) {
             ball.x = rightPaddle.x - ball.width;
             ball.dx = -ball.dx * 1.03;
-
+            
             if (ball.dy > 0) {
                 ball.dy = randomInt(10, 30);
             } else {
                 ball.dy = -randomInt(10, 30);
             }
+
+            sounds.paddleHit.play()
         }
 
         if (ball.y <= 0) {
             ball.dy = -ball.dy;
             ball.y = 0;
+            sounds.wallHit.play()
         }
-
+        
         if (ball.y >= 100 - ball.height) {
             ball.dy = -ball.dy;
             ball.y = 100 - ball.height;
+            sounds.wallHit.play()
         }
 
         // if went right
         if (ball.x >= 100) {
+            sounds.score.play()
             ball.reset();
             leftPlayerScore++;
             servingPlayer = "right";
             gameState = "serve";
-
+            
             if (leftPlayerScore == 10) {
                 gameState = "done";
                 winner = 'left';
             }
         } else if (ball.x + ball.width < 0) {
             // if went left
+            sounds.score.play()
             ball.reset();
             rightPlayerScore++;
             servingPlayer = "left";
