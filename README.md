@@ -11,13 +11,13 @@ The classic [Pong](https://en.wikipedia.org/wiki/Pong) game, created following t
 First clone the repository:
 
 ```cli
-    git clone https://github.com/rafaeldevvv/pong.git
+git clone https://github.com/rafaeldevvv/pong.git
 ```
 
 Then, go to the repository's folder in your computer and run:
 
 ```cli
-    npm run dev
+npm run dev
 ```
 
 Then, visit [http://localhost:5173/](http://localhost:5173/) with your browser.
