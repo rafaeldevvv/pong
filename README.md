@@ -2,6 +2,26 @@
 
 The classic [Pong](https://en.wikipedia.org/wiki/Pong) game, created following the course [CS50's Introduction to Game Development](https://cs50.harvard.edu/games/2018/weeks/0/) by Harvard.
 
+## Screenshot
+
+![Pong](./screenshots/pong.png)
+
+## How to Play
+
+First clone the repository:
+
+```cli
+    git clone https://github.com/rafaeldevvv/pong.git
+```
+
+Then, go to the repository's folder in your computer and run:
+
+```cli
+    npm run dev
+```
+
+Then, visit [http://localhost:5173/](http://localhost:5173/) with your browser.
+
 ## Author
 
 The name's Rafael Maia. You can find me on [Instagram](https://www.instagram.com/rafaeldevvv), [X](https://www.twitter.com/rafaeldevvv), and [Linkedin](https://www.linkedin.com/in/rafael-maia-b69662263). Or you can send me an email [rafaeldeveloperr@gmail.com](mailto:rafaeldeveloperr@gmail.com).
