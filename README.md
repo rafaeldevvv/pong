@@ -17,6 +17,7 @@ git clone https://github.com/rafaeldevvv/pong.git
 Then, go to the repository's folder in your computer and run:
 
 ```cli
+npm i
 npm run dev
 ```
 
