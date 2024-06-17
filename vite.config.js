@@ -1,3 +1,3 @@
 export default {
-    base: '/pong/'
+    base: '/pong/dist/'
 }
