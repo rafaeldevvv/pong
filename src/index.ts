@@ -35,9 +35,9 @@ const rightPaddle = new Paddle(
 );
 
 const sounds = {
-    score: new Audio('/sounds/score.wav'),
-    paddleHit: new Audio('/sounds/paddle_hit.wav'),
-    wallHit: new Audio('/sounds/wall_hit.wav')
+    score: new Audio('/pong/dist/sounds/score.wav'),
+    paddleHit: new Audio('/pong/dist/sounds/paddle_hit.wav'),
+    wallHit: new Audio('/pong/dist/sounds/wall_hit.wav')
 } as const;
 
 sounds.score.volume = .4;
