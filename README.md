@@ -6,22 +6,9 @@ The classic [Pong](https://en.wikipedia.org/wiki/Pong) game, created following t
 
 ![Pong](./screenshots/pong.png)
 
-## How to Play
+## Links
 
-First clone the repository:
-
-```cli
-git clone https://github.com/rafaeldevvv/pong.git
-```
-
-Then, go to the repository's folder in your computer and run:
-
-```cli
-npm i
-npm run dev
-```
-
-Then, visit [http://localhost:5173/](http://localhost:5173/) with your browser.
+Visit [https://rafaeldevvv.github.io/pong/dist/](https://rafaeldevvv.github.io/pong/dist/) to play.
 
 ## Author
 
